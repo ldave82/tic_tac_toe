@@ -1,4 +1,4 @@
-# import random
+import random
 import os
 
 BOARD_SIZE = 9          # define the 3x3 board size
@@ -88,6 +88,44 @@ def switch_player(player):
     else:
         return 'X'
 
+def board_check(board, player):
+    # function to check the board for winning moves for the current player
+    win_con = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],    # row
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],    # column
+        [0, 4, 8], [2, 4, 6]                # diagonal
+    ]
+
+    # getting all the possible lines (row, col, diag) with positions (0-8)
+    for a, b, c in win_con:
+        line_mark = [board[a], board[b], board[c]]
+        line_pos = [a, b, c]
+
+        # check if has 2 player marks and empty space in line (possible win)
+        if line_mark.count(player) == 2 and line_mark.count(' ') == 1:
+            for i in line_pos:
+                if board[i] == ' ':
+                    # print(f'player {color(player)} has a winning move at {i}')      # test
+                    return i        # return the position of the empty space
+
+def cpu_move(board):
+    # function for the CPU player to make a move
+    win_move = board_check(board, 'O')      # check to mark for win
+    if win_move != None:
+        board[win_move] = 'O'
+        return
+
+    block_move = board_check(board, 'X')    # check to mark for block
+    if block_move != None:
+        board[block_move] = 'O' 
+        return
+
+    while True:                             # otherwise random 'O' placement
+        i = random.randrange(BOARD_SIZE)
+        if board[i] == ' ':
+            board[i] = 'O'
+            break
+
 def game_win(board):
     # function to check board status and look for winning combinations
     # return True if win con if found
@@ -124,12 +162,17 @@ print('this is tic tac toe')
 while game_on:
     print_board(board)
 
-    player_input(board, current_player)         # get the player input
-    check_win = game_win(board)                 # check for win
+    if current_player == 'X':
+        player_input(board, current_player)         # get the player input
+    else:
+        print('CPU player turn')                    # CPU player turn
+        cpu_move(board)
+
+    check_win = game_win(board)                     # check for win
     if check_win:
         game_on = False
     else:
-        check_tie = game_tie(board)             # check for  tie if no winner
+        check_tie = game_tie(board)                 # check for tie if no winner
         if check_tie:
             game_on = False
         else:
